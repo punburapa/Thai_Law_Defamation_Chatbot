@@ -1,0 +1,6 @@
+\chroma_db
+\env
+bm25_index.pkl
+*.log
+*.json
+*.csv
