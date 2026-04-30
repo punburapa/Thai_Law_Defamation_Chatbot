@@ -2,7 +2,7 @@
 This chatbot is a part of CP465 Text Mining 
 
 # Setup
-Download data from my [GoogleDrive](www.google.com) and put it in your working directory
+Download data from my [GoogleDrive](https://drive.google.com/drive/folders/1ZZIdGLfIbw2hEILRN9P7pEAgRN-ZT1vg?usp=sharing) and put it in your working directory
 ## Create Visual Enviroment
 ```bash
 python -m venv env
