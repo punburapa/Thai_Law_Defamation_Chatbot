@@ -1,4 +1,4 @@
-# ⚖️ ทนายจ๋า (Tanya-Ja): AI Legal Consultant for Thai Defamation Law
+# ⚖️ ทนายจ๋า (Tanai-Ja): AI Legal Consultant for Thai Defamation Law
 
 **ทนายจ๋า CHATBOT** is an intelligent legal assistant designed to provide clear and accurate advice on Thai defamation law (หมิ่นประมาท). Developed as a portfolio-ready project for the **CP465 Text Mining** course, it leverages a Hybrid Retrieval-Augmented Generation (RAG) architecture to bridge the gap between complex legal jargon and accessible public guidance.
 
