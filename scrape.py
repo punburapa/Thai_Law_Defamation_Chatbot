@@ -34,8 +34,7 @@ def scrape_deka():
     with open('supremecourt_rag_data.csv', mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
         writer.writerow(['deka_id', 'deka_no', 'keyword', 'litigant', 'law', 'judge', 'source', 'short_summary', 'long_summary', 'full_text'])
-        
-        # ทดสอบที่หน้า 1 ถึง 3
+
         for page in range(1, 80): 
             print(f"\n*** Scraping Search Page {page} ***")
             payload = {
@@ -61,24 +60,20 @@ def scrape_deka():
                     deka_id = button.get('id').replace('btn_print_', '').strip()
                     
                     try:
-                        # 1. แงะเอา ID ของกล่องข้อความพิมพ์ที่ซ่อนอยู่ (เช่น vs_723553_2568_content)
                         onclick_val = button.get('onclick', '')
                         match = re.search(r"printdeka\('[^']+',\s*'#([^']+)'", onclick_val)
                         if not match: continue
                         
                         content_id = match.group(1)
                         
-                        # 2. หากล่องเนื้อหานั้นในหน้าค้นหาเลย ไม่ต้องโหลดหน้าใหม่!
                         container = soup.find('ul', id=content_id)
                         if not container: continue
                         
-                        # 3. สกัดข้อมูลตาม Class ของรูปแบบหน้าพิมพ์
                         deka_no = extract_print_item(container, 'print_item_deka_no', ['คำพิพากษาศาลฎีกาที่'])
                         litigant = extract_print_item(container, 'print_item_litigant')
                         law = extract_print_item(container, 'print_item_law')
                         judge = extract_print_item(container, 'print_item_judge')
-                        
-                        # รวมศาลชั้นต้นและแหล่งที่มาเข้าด้วยกัน
+
                         src1 = extract_print_item(container, 'print_item_primarycourt')
                         src2 = extract_print_item(container, 'print_item_source', ['แหล่งที่มา'])
                         source = clean_text(f"{src1} {src2}")
@@ -86,7 +81,6 @@ def scrape_deka():
                         short_summary = extract_print_item(container, 'print_item_short_text')
                         long_summary = extract_print_item(container, 'print_item_long_text')
                         
-                        # จัดแพตเทิร์น Full Text เพื่อใช้เข้า RAG
                         full_text = clean_text(f"ย่อสั้น: {short_summary} || ย่อยาว: {long_summary}")
                         
                         writer.writerow([
