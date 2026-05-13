@@ -1,82 +1,136 @@
-# ⚖️ LAWYER CHATBOT for หมิ่นประมาท (Defamation)
+# ⚖️ ทนายจ๋า (Tanya-Ja): AI Legal Consultant for Thai Defamation Law
 
-This project introduces "ทนายจ๋า CHATBOT", an intelligent legal assistant specifically designed to provide advice on Thai defamation law (หมิ่นประมาท). Developed as part of CP465 Text Mining, this chatbot aims to simplify access to legal information by leveraging advanced AI techniques.
+**ทนายจ๋า CHATBOT** is an intelligent legal assistant designed to provide clear and accurate advice on Thai defamation law (หมิ่นประมาท). Developed as a portfolio-ready project for the **CP465 Text Mining** course, it leverages a Hybrid Retrieval-Augmented Generation (RAG) architecture to bridge the gap between complex legal jargon and accessible public guidance.
 
-## 🌟 Problem Definition: หมิ่นประมาท (Defamation)
+---
 
-Defamation is a nuanced area of law that many people are concerned about but often find complex to navigate. Understanding what constitutes defamation and seeking quick, reliable legal guidance can be challenging. This chatbot addresses the need for an accessible tool to clarify such legal questions.
+## 🌟 Business Context & Impact
 
-## ✨ Solution: ทนายจ๋า CHATBOT
+### The Problem: Navigating Defamation Law
+Thai defamation law is nuanced and context-heavy. For the general public, understanding whether a statement constitutes a legal offense or finding relevant Supreme Court precedents is often a slow and expensive process.
 
-"ทนายจ๋า CHATBOT" is built to offer clear, concise, and accurate legal advice on defamation. It acts as a friendly and knowledgeable legal consultant, explaining complex legal concepts and case precedents in an easy-to-understand language.
+### The Solution: ทนายจ๋า (Tanya-Ja)
+This chatbot serves as a friendly, expert legal consultant. It simplifies complex legal concepts and case precedents into easy-to-understand language, providing instant, evidence-based preliminary advice.
 
-## 🧠 Workflow and Architecture
+### Chatbot Capabilities
+The bot is programmed with a specific persona and response guidelines:
+*   **Offense Verdict:** Clearly states if an act is "Likely an offense," "Unlikely," or "Ambiguous."
+*   **Evidence-Based:** Every response is backed by specific **Legal Articles (มาตรา)** and **Supreme Court Judgments (ฎีกา)**.
+*   **Semantic Understanding:** Can identify defamatory intent even if specific keywords aren't present (e.g., matching slang to formal legal definitions).
+*   **No Hallucinations:** Politely declines to answer if the context does not contain relevant legal information.
 
-The chatbot utilizes a **Retrieval Augmented Generation (RAG)** architecture to provide informed responses.
+---
 
-### Components:
--   **User Query:** The user's question, posed via CLI or Telegram.
--   **LLM Model:** **Gemma4:E2B** (running locally) serves as the core language model, generating human-like responses.
--   **Retrieval System:** This system is responsible for fetching relevant legal documents.
-    -   **ChromaDB + BM25:** A hybrid retrieval approach combining a vector database (ChromaDB) for semantic search and BM25 for lexical search.
-    -   **Langchain:** Orchestrates the RAG pipeline, including an `EnsembleRetriever` to combine results from both ChromaDB and BM25.
--   **Data Sources:**
-    -   **ฎีกา (Supreme Court Judgments):** Case precedents provide crucial context for legal interpretations.
-    -   **มาตรา (Legal Articles/Sections):** Relevant laws and statutes.
--   **Web Scraping:** **BeautifulSoup** is used to scrape legal documents and judgments.
--   **Text Processing:** **PyThaiNLP** is employed for Thai text processing, including tokenization, which is essential for accurate retrieval and understanding.
+## ⚙️ Technical Architecture
 
-The `EnsembleRetriever` with weights `[0.5, 0.5]` balances the contributions from both lexical and semantic search, ensuring comprehensive and relevant information retrieval.
+The system utilizes a **Hybrid RAG (Retrieval-Augmented Generation)** pipeline to ensure both keyword precision and semantic depth.
 
-## 🗣️ Chatbot Capabilities and Interaction Guidelines
+### Data Pipeline
+<div align="center" style="background-color: white; padding: 20px; border-radius: 10px;">
 
-The chatbot is designed to act as a friendly, kind, and expert legal consultant on Thai defamation law. It adheres to strict response guidelines to ensure clarity and accuracy:
-
-1.  **Conclude Fault (ฟันธงความผิด):** Responses start by clearly stating if an act "น่าจะเข้าข่ายความผิดค่ะ" (likely constitutes an offense), "ไม่น่าจะเข้าข่ายความผิดค่ะ" (unlikely to constitute an offense), or "กรณีนี้ก้ำกึ่งค่ะ" (ambiguous case).
-    -   **Comparison Trick:** Even if user's exact words aren't in the context, if they have similar roots or meaning (e.g., "กะหรี่" or "ดอกทอง" for "อี-กะหรี่," "อี-ดอก"), the chatbot will still compare with available judgments.
-2.  **Provide Reasons and References (ให้เหตุผลและอ้างอิง):** Responses include specific legal articles and Supreme Court judgments from the provided context as supporting evidence.
-3.  **Easy-to-Understand Explanation (อธิบายให้เข้าใจง่าย):** The chatbot summarizes the essence of the law or judgment in simple, everyday language, avoiding overly technical legal jargon.
-4.  **Handling Missing Information (กรณีไม่มีข้อมูลจริงๆ):** If the context lacks relevant information, the chatbot will politely state that it cannot provide a clear legal opinion without fabricating information.
-
-## 🚧 Challenges and Future Improvements
-
-During development and local operation, several challenges were identified:
--   **Low Context Window:** Limitations in processing lengthy legal texts.
--   **Slow Performance:** Running larger models locally can be computationally intensive, leading to slow response times.
--   **Model Size Limitations:** Smaller models may not possess the same level of intelligence and nuance as larger counterparts.
-
-Future work could involve exploring more optimized local LLMs, improving context handling, or leveraging cloud-based solutions for better performance and scalability.
-
-## 🛠️ Setup
-
-### 1. Data
-Download the necessary data from my [GoogleDrive](https://drive.google.com/drive/folders/1ZZIdGLfIbw2hEILRN9P7pEAgRN-ZT1vg?usp=sharing) and place it in your working directory.
-
-### 2. Create Virtual Environment
-```bash
-python -m venv env
+```mermaid
+graph LR
+    A[scrape.py] --> B[CSV Dataset]
+    B --> C[build_db.py]
+    C --> D[(ChromaDB + BM25 Index)]
+    D --> E[bot_app.py]
+    F[User Query] --> E
+    E --> G[LLM Response]
 ```
 
-### 3. Install Requirements
+</div>
+
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **LLM** | **gemma4:e2b** (via Ollama) | Generates human-like, expert legal responses locally. |
+| **Orchestration** | **LangChain** | Manages the RAG pipeline and Ensemble Retriever. |
+| **Vector DB** | **ChromaDB** | Semantic search using `paraphrase-multilingual-MiniLM-L12-v2`. |
+| **Keyword Search** | **BM25** | Lexical search using PyThaiNLP `newmm` tokenizer. |
+| **NLP Engine** | **PyThaiNLP** | Handles Thai tokenization and text processing. |
+| **Scraping** | **BeautifulSoup** | Extracts data from official Supreme Court databases. |
+
+### Hybrid Retrieval Strategy
+We use an `EnsembleRetriever` with a **50/50 weight** split:
+1.  **BM25 Retriever:** Captures exact legal terms and article numbers (Lexical).
+2.  **ChromaDB Retriever:** Understands the semantic context and intent of the user's query (Vector).
+
+---
+
+## 🛠️ Installation & Setup
+
+### 1. Prerequisites
+*   Python 3.10+
+*   [Ollama](https://ollama.com) installed and running.
+
+### 2. Environment Setup
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/lawyer-chatbot.git
+cd lawyer-chatbot
+
+# Create and activate virtual environment
+python -m venv env
+source env/bin/activate  # On Windows: .\env\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Running the Chatbot
+### 3. Model Preparation (Ollama)
+Ensure the local LLM is available:
+```bash
+ollama pull gemma4:e2b
+ollama serve
+```
 
-**CLI Mode:**
-To run the chatbot in command-line interface mode:
+### 4. Data Initialization
+You can download the pre-built database or build it from scratch.
+
+*   **Option A: Download (Recommended)**
+    Download the `chroma_db` folder from [Google Drive](https://drive.google.com/drive/folders/1ZZIdGLfIbw2hEILRN9P7pEAgRN-ZT1vg?usp=sharing) and place it in the root directory.
+
+*   **Option B: Build from Scratch**
+    ```bash
+    # Scrape data (approx. 79 pages of judgments)
+    python scrape.py
+
+    # Build ChromaDB + BM25 index
+    python build_db.py
+    ```
+
+---
+
+## 🚀 Usage
+
+### CLI Mode (Terminal)
+Interact with the bot directly in your terminal:
 ```bash
 python bot_app.py --mode cli
 ```
 
-**Telegram Chatbot Mode:**
-To run the chatbot as a Telegram bot, you need to create a bot first via [BotFather](https://telegram.me/BotFather) on Telegram to obtain your `[BOT_TOKEN]`.
+### Telegram Mode
+1.  Create a bot via [@BotFather](https://telegram.me/BotFather) to get your `API_TOKEN`.
+2.  Run the bot:
 ```bash
-python bot_app.py --mode telegram --token [BOT_TOKEN]
+python bot_app.py --mode telegram --token YOUR_BOT_TOKEN
+```
+Alternatively, set the token as an environment variable:
+```bash
+# Windows (PowerShell)
+$env:TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN"
+python bot_app.py --mode telegram
 ```
 
-## 📄 Data Source
+---
 
-The project utilizes Supreme Court Judgments scraped from legal databases and the `pythainlp/thailaw-v1.0` dataset from Hugging Face for the RAG system's retrieval component.
+## 📄 Data Sources
+*   **Supreme Court Judgments (คำพิพากษาฎีกา):** Scraped from [deka.supremecourt.or.th](https://deka.supremecourt.or.th).
+*   **Thai Law Dataset:** Utilizes `pythainlp/thailaw-v1.0` for comprehensive legal section coverage.
 
+## 🚧 Challenges & Future Roadmap
+*   **Context Window:** Optimizing long legal texts for better LLM ingestion.
+*   **Performance:** Improving inference speed for local model execution.
+*   **Scalability:** Exploring quantized models and vector index optimizations.
+
+---
+*Developed as part of the CP465 Text Mining course project.*
