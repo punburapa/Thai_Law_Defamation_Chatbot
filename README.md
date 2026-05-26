@@ -116,26 +116,6 @@ You can download the pre-built database or build it from scratch.
 | **Local Ollama** | `python bot_app.py --mode telegram --token TG_TOKEN --llm ollama` |
 | **Google Gemini** | `python bot_app.py --mode telegram --token TG_TOKEN --llm gemini --gemini-key GEMINI_KEY` |
 
----
-
-### 💡 Pro Tip: Use Environment Variables
-Instead of passing keys in the command line (which shows up in your shell history), set them as environment variables.
-
-**Windows (PowerShell):**
-```powershell
-$env:TELEGRAM_BOT_TOKEN = "your_telegram_token"
-$env:GEMINI_API_KEY = "your_gemini_api_key"
-
-# Now you can run without passing keys
-python bot_app.py --mode telegram --llm gemini
-```
-
-**Windows (Command Prompt):**
-```cmd
-set TELEGRAM_BOT_TOKEN=your_telegram_token
-set GEMINI_API_KEY=your_gemini_api_key
-python bot_app.py --mode telegram --llm gemini
-```
 
 ---
 
