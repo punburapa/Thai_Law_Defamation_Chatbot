@@ -102,23 +102,39 @@ You can download the pre-built database or build it from scratch.
 
 ## 🚀 Usage
 
-### CLI Mode (Terminal)
-Interact with the bot directly in your terminal:
-```bash
-python bot_app.py --mode cli
+ทนายจ๋า supports two **LLM Backends** (Ollama, Gemini) and two **Interfaces** (CLI, Telegram). Use the `--llm` and `--mode` flags to configure your session.
+
+### 1. CLI Mode (Terminal)
+| Backend | Command |
+| :--- | :--- |
+| **Local Ollama** | `python bot_app.py --mode cli --llm ollama` |
+| **Google Gemini** | `python bot_app.py --mode cli --llm gemini --gemini-key YOUR_KEY` |
+
+### 2. Telegram Mode
+| Backend | Command |
+| :--- | :--- |
+| **Local Ollama** | `python bot_app.py --mode telegram --token TG_TOKEN --llm ollama` |
+| **Google Gemini** | `python bot_app.py --mode telegram --token TG_TOKEN --llm gemini --gemini-key GEMINI_KEY` |
+
+---
+
+### 💡 Pro Tip: Use Environment Variables
+Instead of passing keys in the command line (which shows up in your shell history), set them as environment variables.
+
+**Windows (PowerShell):**
+```powershell
+$env:TELEGRAM_BOT_TOKEN = "your_telegram_token"
+$env:GEMINI_API_KEY = "your_gemini_api_key"
+
+# Now you can run without passing keys
+python bot_app.py --mode telegram --llm gemini
 ```
 
-### Telegram Mode
-1.  Create a bot via [@BotFather](https://telegram.me/BotFather) to get your `API_TOKEN`.
-2.  Run the bot:
-```bash
-python bot_app.py --mode telegram --token YOUR_BOT_TOKEN
-```
-Alternatively, set the token as an environment variable:
-```bash
-# Windows (PowerShell)
-$env:TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN"
-python bot_app.py --mode telegram
+**Windows (Command Prompt):**
+```cmd
+set TELEGRAM_BOT_TOKEN=your_telegram_token
+set GEMINI_API_KEY=your_gemini_api_key
+python bot_app.py --mode telegram --llm gemini
 ```
 
 ---

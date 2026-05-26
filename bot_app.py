@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import pickle
 import asyncio
@@ -10,6 +11,7 @@ from langchain_chroma import Chroma
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.llms import Ollama
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
@@ -24,7 +26,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 def thai_tokenizer(text):
     return word_tokenize(text, engine="newmm")
 
-def setup_rag_chain():
+def setup_rag_chain(llm_choice="ollama", gemini_api_key=None):
     """Initializes the Hybrid RAG chain with loaded databases."""
     print("Loading embedding model...")
     embeddings = HuggingFaceEmbeddings(
@@ -46,7 +48,7 @@ def setup_rag_chain():
             bm25_retriever.k = 5
     except FileNotFoundError:
         print("Error: ./bm25_index.pkl not found. Please ensure the path is correct.")
-        exit(1)
+        sys.exit(1)
 
     print("Configuring Ensemble Retriever...")
     ensemble_retriever = EnsembleRetriever(
@@ -54,9 +56,17 @@ def setup_rag_chain():
         weights=[0.5, 0.5]
     )
 
-    print("Connecting to local Ollama instance...")
-    # Update base_url if Ollama runs on a different port
-    llm = Ollama(model="gemma4:e2b", base_url="http://localhost:11434", num_gpu=0)
+    if llm_choice == "gemini":
+        print("Connecting to Google Gemini API...")
+        if not gemini_api_key:
+            print("Error: Gemini API key is required when using Gemini mode.")
+            sys.exit(1)
+        # Using gemini-3-flash-preview as requested
+        llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", google_api_key=gemini_api_key, temperature=0.3)
+    else:
+        print("Connecting to local Ollama instance...")
+        # Update base_url if Ollama runs on a different port
+        llm = Ollama(model="gemma4:e2b", base_url="http://localhost:11434", num_gpu=0)
 
     # Strict Persona Prompt
     system_prompt = (
@@ -166,12 +176,30 @@ if __name__ == "__main__":
         type=str, 
         help="Telegram Bot Token (Required if mode is 'telegram')."
     )
+    parser.add_argument(
+        "--llm", 
+        type=str, 
+        choices=["ollama", "gemini"], 
+        default="ollama",
+        help="Choose the LLM backend: 'ollama' (local) or 'gemini' (cloud)."
+    )
+    parser.add_argument(
+        "--gemini-key", 
+        type=str, 
+        help="Google Gemini API Key (Required if llm is 'gemini')."
+    )
 
     args = parser.parse_args()
 
+    # Check Gemini API Key if using Gemini
+    gemini_key = args.gemini_key or os.environ.get("GEMINI_API_KEY")
+    if args.llm == "gemini" and not gemini_key:
+        print("Error: Gemini API key is required. Provide it via --gemini-key or GEMINI_API_KEY environment variable.")
+        sys.exit(1)
+
     # Initialize the core logic regardless of the mode
     print("Initializing Core RAG System. This may take a moment...")
-    rag_chain = setup_rag_chain()
+    rag_chain = setup_rag_chain(llm_choice=args.llm, gemini_api_key=gemini_key)
 
     if args.mode == "cli":
         run_cli(rag_chain)
